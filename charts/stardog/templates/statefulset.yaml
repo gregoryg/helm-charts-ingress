@@ -65,7 +65,7 @@ spec:
         image: {{ .Values.busybox.image.repository }}:{{ .Values.busybox.image.tag }}
         imagePullPolicy: {{ .Values.busybox.image.pullPolicy }}
         command:
-        - /bin/sh
+        - /bin/bash
         - -c
         - |
         {{ if .Values.zookeeper.enabled }}
@@ -144,7 +144,7 @@ spec:
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         command:
-        - /bin/sh
+        - /bin/bash
         - -c
         - |
           set -ex
@@ -169,7 +169,7 @@ spec:
           preStop:
             exec:
               command:
-              - /bin/sh
+              - /bin/bash
               - -c
               - |
                 /opt/stardog/bin/stardog-admin server stop -u admin -p $(cat /etc/stardog-password/adminpw)
