@@ -1,20 +1,16 @@
+# 2.0.7 (2023-02-14)
 
-# 2.0.5 (2022-03-02)
-Features:
- * Allow user to enable ingress controller
- * As a simple HTTP service
-  - An HTTPS service using NGINX 
-  - support auto-generated certificate providers such as Letsencrypt 
-  - support auto-generated self-signed certificates 
-  - support specific domain certificate
+* Make imagePullSecrets optional (#77)
+* Ignores image pull secret if not passed (#89) 
+* Add data load and query to smoke tests (#84) 
 
-- An HTTPS service using Azure Application Gateway Ingress Controller
+# 2.0.6 (2022-09-02)
 
-  - Support auto-generated certificate providers such as Letencrypt. 
-  - Support auto-generated self-signed certificates
-  - Support specific domain certificates via Azure Key Vault.
+* Change Docker URLs to use v2 of the API (#86)
 
-- Patch the zookeeper dependency in stardog chart a result of change in the bitnami retention policy (#71)
+# 2.0.5 (2022-06-07)
+
+* Patch the zookeeper dependency in stardog chart a result of change in the bitnami retention policy (#71)
 
 # 2.0.4 (2021-12-07)
 
