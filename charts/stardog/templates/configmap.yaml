@@ -29,7 +29,37 @@ metadata:
 data:
   {{- (.Files.Glob "files/stardog.properties").AsConfig | nindent 2 }}
     pack.enabled={{ .Values.cluster.enabled }}
+    {{- .Values.additionalStardogProperties | nindent 4 }}
     pack.zookeeper.address={{ if .Values.zookeeper.enabled }}{{- template "zkservers" . }}{{ else }}{{ .Values.zookeeper.addresses }}{{ end }}
-    pack.node.join.retry.count=15
-    pack.node.join.retry.delay=1m
-  {{- .Values.additionalStardogProperties | nindent 4 }}
+
+{{ if .Values.oauth.enabled }}
+{{ if eq .Values.oauth.azure "azure" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stardog.fullname" . }}-jwt
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+
+data:
+  jwt.yaml: |-
+    ---
+    confVersion: "1.0"
+    deploymentName: {{ .Values.oauth.azure.name }}
+
+    issuers:
+      {{ .Values.oauth.azure.jwt_issuer }}:
+        audience: {{ .Values.oauth.azure.audience}}
+        usernameField: {{ .Values.oauth.azure.usernameField }}
+        autoCreateUsers: {{ .Values.oauth.azure.autoCreateUsers }}
+        allowedGroupIdentifiers: [ {{ .Values.oauth.azure.allowedGroupIdentifiers }} ] 
+        algorithms:
+          RS256:
+            keyUrl: {{ .Values.oauth.azure.keyUrl }}
+{{ end }}
+{{ end }}

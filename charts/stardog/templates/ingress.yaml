@@ -1,65 +1,116 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "stardog.fullname" . -}}
-{{- $httpPort := .Values.ports.server -}}
-{{- $pathtype := .Values.ingress.pathtype -}}
-{{- $ingressPath := .Values.ingress.path -}}
+{{ if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}-ingress
-  namespace: {{ include "stardog.namespace" . }}
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Chart.Name }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- with .Values.ingress.annotations }}
+{{ with .Values.ingress.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
-{{- end }}
+{{ end }}
 spec:
-  {{- if .Values.ingress.className }}
+  {{ if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className | quote }}
-  {{- end }}
-{{- if .Values.ingress.tls }}
-  tls:
-  {{- if .ingressPath }}
-  {{- range  .Values.ingress.tls }}
-  - hosts:
-    {{- range  .hosts }}
-      - {{ . }}
-    {{- end }}
-    secretName: {{ .secretName }}
-  {{- end }}
-{{- else }}
-{{ toYaml .Values.ingress.tls | indent 4 }}
-  {{- end }}
-{{- end}}
+  {{ end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    {{- if $ingressPath }}
-  - host: {{ . }}
+  - host: {{ .Values.ingress.server.url }}.{{ .Values.ingress.dnsZone }}
     http:
       paths:
-      - path: {{ $ingressPath }}
-        pathType: {{ $pathtype }}
+      - path: {{ .Values.ingress.server.path }}  
+        pathType: {{ .Values.ingress.server.pathtype }} 
         backend:
           service:
-            name: {{ $fullName }}
+            name: {{ include "stardog.fullname" . }}
             port:
-              number: {{ $httpPort }}
-  {{- else }}
-  - host: {{ .host }}
+              number: {{ .Values.ports.server }}
+  - host: {{ .Values.ingress.sql.url }}.{{ .Values.ingress.dnsZone }}
     http:
       paths:
-      {{- range .paths }}
-      - path: {{ .path }}
-        pathType: {{ $pathtype }}
+      - path: {{ .Values.ingress.sql.path }} 
+        pathType: {{ .Values.ingress.sql.pathtype }}
         backend:
           service:
-            name: {{ $fullName }}
+            name: {{ include "stardog.fullname" . }}
             port:
-              number: {{ $httpPort }}
-      {{- end }}
-  {{- end }}
- {{- end }}
- {{- end }}
+              number: {{ .Values.ports.sql }}
+{{ if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+      - {{ .Values.ingress.server.url }}.{{ .Values.ingress.dnsZone }}
+      - {{ .Values.ingress.sql.url }}.{{ .Values.ingress.dnsZone }}
+      secretName: tls-secret-{{ .Release.Name }}
+{{ end }}
+{{ end }}
+
+
+
+# {{- if .Values.ingress.enabled -}}
+# {{- $fullName := include "stardog.fullname" . -}}
+# {{- $httpPort := .Values.ports.server -}}
+# {{- $sqlPort := .Values.ports.sql -}}
+# {{- $pathtype := .Values.ingress.pathtype -}}
+# {{- $ingressPath := .Values.ingress.path -}}
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: {{ $fullName }}-ingress
+#   namespace: {{ include "stardog.namespace" . }}
+#   labels:
+#     app: {{ .Chart.Name }}
+#     release: {{ .Release.Name }}
+#     heritage: {{ .Release.Service }}
+# {{- with .Values.ingress.annotations }}
+#   annotations:
+# {{ toYaml . | indent 4 }}
+# {{- end }}
+# spec:
+#   {{- if .Values.ingress.className }}
+#   ingressClassName: {{ .Values.ingress.className | quote }}
+#   {{- end }}
+# {{- if .Values.ingress.tls }}
+#   tls:
+#   {{- if .ingressPath }}
+#   {{- range  .Values.ingress.tls }}
+#   - hosts:
+#     {{- range  .hosts }}
+#       - {{ . }}
+#     {{- end }}
+#     secretName: {{ .secretName }}
+#   {{- end }}
+# {{- else }}
+# {{ toYaml .Values.ingress.tls | indent 4 }}
+#   {{- end }}
+# {{- end}}
+#   rules:
+#   {{- range .Values.ingress.hosts }}
+#     {{- if $ingressPath }}
+#   - host: {{ . }}
+#     http:
+#       paths:
+#       - path: {{ $ingressPath }}
+#         pathType: {{ $pathtype }}
+#         backend:
+#           service:
+#             name: {{ $fullName }}
+#             port:
+#               number: {{ $httpPort }}
+#   {{- else }}
+#   - host: {{ .host }}
+#     http:
+#       paths:
+#       {{- range .paths }}
+#       - path: {{ .path }}
+#         pathType: {{ $pathtype }}
+#         backend:
+#           service:
+#             name: {{ $fullName }}
+#             port:
+#               number: {{ $sqlPort }}
+#       {{- end }}
+#   {{- end }}
+#  {{- end }}
+#  {{- end }}

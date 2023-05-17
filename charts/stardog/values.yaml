@@ -42,7 +42,7 @@ service:
 # The sql port is the port to expose Stardog's business intelligence server
 ports:
   server: 5820
-  # sql: 5806
+  sql: 5806
 
 # The location Stardog will use for temporary space (i.e. java.io.tmpdir).
 # If you choose to place this in STARDOG_HOME (/var/opt/stardog) for performance
@@ -174,20 +174,22 @@ zookeeper:
 
 ingress:
   enabled: false
-  annotations: {}
+  # annotations: {}
   # nginx.ingress.kubernetes.io/use-regex: "true"
   # nginx.ingress.kubernetes.io/app-root: "/admin/alive"
   # kubernetes.io/tls-acme: "true" 
-  #className: "nginx" 
-  #pathtype: Prefix
-  hosts: []
-    # - host: chart-example.local
-    #   paths:
-    #     - path: /
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  # className: "nginx" 
+  # dnsZone: dns.mycompany.com
+  # server:
+  #   url: stardog-cluster
+  #   path: /(.*)
+  #   pathtype: Prefix
+  # sql:
+  #   url: bi-endpoint
+  #   paths: /(.*)
+  #   pathtype: Prefix
+  # tls: 
+  #   enabled: false
 
 backup:
   enabled: false
@@ -205,3 +207,7 @@ backup:
   #     capacity: 1Ti
   #     path:
   #     ipAddress:
+
+oauth:
+  enabled: false
+  azure: {}
